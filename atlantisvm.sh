@@ -63,6 +63,7 @@ sudo apt-get -y --no-install-recommends install \
 sudo add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable
 sudo apt install gdal-bin -y
    
+# the below does not work for Albi - no version of jq for bionic, xenial seems to be the last   
 sudo add-apt-repository -y ppa:opencpu/jq
 sudo apt-get update -qq
 sudo apt-get install libjq-dev -y
@@ -80,7 +81,11 @@ sudo apt install --no-install-recommends software-properties-common dirmngr -y
 # Fingerprint: 298A3A825C0D65DFD57CBB651716619E084DAB9
 wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
 # add the R 4.0 repo from CRAN -- adjust 'focal' to 'groovy' or 'bionic' as needed
-sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/" -y
+# sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/" -y
+
+# ALBI: until Sept 2022 we have been using R 3.6.3 to run Atlantis on RStudio Server. This is dated but it serves its purpose and I'd rather not touch it if it works, so not getting the latest version
+# So I added the line below, and removed the repositories for opencpu/jq and for R 4.0, or else it will go and get R 4.2.2
+sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran35/" -y
 
 sudo apt install --no-install-recommends r-base -y
 sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+ -y
@@ -96,9 +101,12 @@ sudo gdebi rstudio-server-2022.02.2-485-amd64.deb
 echo "Install AzCopy" 
 
 wget -O azcopy_linux_amd64_10.16.1.tar https://aka.ms/downloadazcopy-v10-linux
-https://aka.ms/downloadazcopy-v10-linux
 tar -xzf azcopy_linux_amd64_10.16.1.tar
 sudo cp ./azcopy_linux_amd64_*/azcopy /usr/bin/
+
+# Albi: these packages are needed to install the R packages
+sudo apt-get install libharfbuzz-dev libfribidi-dev libfontconfig1-dev
+sudo apt-get install libtool m4 automake
 
 if [ -d $HOME/bin ]; then
 PATH=$PATH:$HOME/bin
